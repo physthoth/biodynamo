@@ -102,7 +102,7 @@ function InstallPackages {
 
 function Install {
   echo "Start installation of prerequisites..."
-  EchoWarning "Warning Support for CentOS 7.5.1804 is experimental!"
+  EchoWarning "Warning Support for CentOS 7.6.1810 is experimental!"
   EchoWarning "No support for Paraview at the moment."
 
   export BDM_INSTALL_DIR=$(SelectInstallDir)

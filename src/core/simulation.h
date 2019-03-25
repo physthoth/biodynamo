@@ -83,7 +83,7 @@ struct Simulation {
 
   ResourceManager<TCTParam>* GetResourceManager();
 
-  const Param_t* GetParam() const;
+  Param_t* GetParam();
 
   Grid<Simulation>* GetGrid();
 

@@ -132,7 +132,7 @@ ResourceManager<T>* Simulation<T>::GetResourceManager() {
 }
 
 template <typename T>
-const typename Simulation<T>::Param_t* Simulation<T>::GetParam() const {
+typename Simulation<T>::Param_t* Simulation<T>::GetParam() {
   return param_;
 }
 
