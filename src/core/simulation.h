@@ -18,9 +18,9 @@
 #include <string>
 #include <vector>
 
+#include "core/memory/memory_manager.h"
 #include "core/util/random.h"
 #include "core/util/root.h"
-#include "core/memory/memory_manager.h"
 
 namespace bdm {
 
