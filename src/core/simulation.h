@@ -95,7 +95,7 @@ class Simulation {
   /// Returns all thread local execution contexts.
   std::vector<InPlaceExecutionContext*>& GetAllExecCtxts();
 
-  MemoryManager* GetMemoryManager() { return &mem_mgr_; }
+  // MemoryManager* GetMemoryManager() { return &mem_mgr_; }
 
   /// @see `unique_name_`
   const std::string& GetUniqueName() const;
@@ -137,7 +137,7 @@ class Simulation {
   std::string output_dir_;  //!
 
   /// TODO add documentation
-  MemoryManager mem_mgr_;
+  // MemoryManager mem_mgr_;
 
   /// Initialize Simulation
   void Initialize(int argc, const char** argv,
