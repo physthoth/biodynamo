@@ -33,6 +33,7 @@
 #include "core/sim_object/so_visitor.h"
 #include "core/util/macros.h"
 #include "core/util/root.h"
+#include "core/container/inline_vector.h"
 
 namespace bdm {
 
@@ -220,7 +221,7 @@ class SimObject {
   void RunBiologyModules();
 
   /// Return all biology modules
-  const std::vector<BaseBiologyModule*>& GetAllBiologyModules() const;
+  const InlineVector<BaseBiologyModule*, 5>& GetAllBiologyModules() const;
   // ---------------------------------------------------------------------------
 
   virtual Double3 CalculateDisplacement(double squared_radius, double dt) = 0;
@@ -246,7 +247,7 @@ class SimObject {
   /// Grid box index
   uint32_t box_idx_;
   /// collection of biology modules which define the internal behavior
-  std::vector<BaseBiologyModule*> biology_modules_;
+  InlineVector<BaseBiologyModule*, 5> biology_modules_;
 
  private:
   /// Helper variable used to support removal of biology modules while
