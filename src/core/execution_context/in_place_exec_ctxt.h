@@ -23,7 +23,7 @@
 #include "core/operation/operation.h"
 #include "core/sim_object/so_uid.h"
 #include "core/util/thread_info.h"
-#include "core/fen_func.h"
+#include "core/functor.h"
 
 namespace bdm {
 
@@ -74,12 +74,12 @@ class InPlaceExecutionContext {
                        const SimObject& query);
 
   void ForEachNeighbor(
-      FenFunc& lambda,
+      Functor<void, const SimObject*, double>& lambda,
       const SimObject& query);
 
   /// Forwards the call to `Grid::ForEachNeighborWithinRadius`
   void ForEachNeighborWithinRadius(
-      FenFunc& lambda,
+      Functor<void, const SimObject*, double>& lambda,
       const SimObject& query, double squared_radius);
 
   SimObject* GetSimObject(SoUid uid);
