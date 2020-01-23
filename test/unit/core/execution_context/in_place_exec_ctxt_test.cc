@@ -217,4 +217,78 @@ TEST(InPlaceExecutionContext, ExecuteThreadSafety) {
   });
 }
 
+TEST(InPlaceExecutionContext, AddRemoveLock) {
+  Spinlock s0;
+  Spinlock s1;
+
+  int shared_counter = 0;
+
+  auto concurrent = [&shared_counter](Spinlock* l0, Spinlock* l1) {
+    InPlaceExecutionContext ctxt;
+    for (int i = 0; i < 1e5; i++) {
+      ctxt.AddLock(l0);
+      ASSERT_FALSE(l0->try_lock());
+      ctxt.AddLock(l1);
+
+      // critical section
+      ASSERT_FALSE(l0->try_lock());
+      ASSERT_FALSE(l1->try_lock());
+      shared_counter++;
+
+      ctxt.RemoveLock(l1);
+      ctxt.RemoveLock(l0);
+    }
+  };
+
+#pragma omp parallel for schedule(static, 1)
+  for(int i = 0; i < 2; i++) {
+    if (i == 0) {
+      concurrent(&s0, &s1);
+    } else {
+      concurrent(&s1, &s0);
+    }
+  }
+  EXPECT_EQ(2e5, shared_counter);
+}
+
+TEST(InPlaceExecutionContext, AddRemoveLockReentrance) {
+  Spinlock s0;
+  Spinlock s1;
+
+  int shared_counter = 0;
+
+  auto concurrent = [&shared_counter](Spinlock* l0, Spinlock* l1) {
+    InPlaceExecutionContext ctxt;
+    for (int i = 0; i < 1e5; i++) {
+      ctxt.AddLock(l0);
+      ASSERT_FALSE(l0->try_lock());
+      ctxt.AddLock(l1);
+      // reentering l0
+      ctxt.AddLock(l0);
+
+      // critical section
+      ASSERT_FALSE(l0->try_lock());
+      ASSERT_FALSE(l1->try_lock());
+      shared_counter++;
+
+      ctxt.RemoveLock(l0);
+      // l0 should still be locked
+      ASSERT_FALSE(l0->try_lock());
+
+      ctxt.RemoveLock(l1);
+      ctxt.RemoveLock(l0);
+    }
+  };
+
+#pragma omp parallel for schedule(static, 1)
+  for(int i = 0; i < 2; i++) {
+    if (i == 0) {
+      concurrent(&s0, &s1);
+    } else {
+      concurrent(&s1, &s0);
+    }
+  }
+  EXPECT_EQ(2e5, shared_counter);
+}
+
 }  // namespace bdm
