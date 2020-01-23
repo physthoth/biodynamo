@@ -213,7 +213,7 @@ void InPlaceExecutionContext::AddLock(Spinlock* lock) {
     }
   }
 
-  auto unlock_all = [this](uint64_t max, char c) {
+  auto unlock_all = [this](uint64_t max) {
     for (uint64_t i = 0; i < max; ++i) {
       locks_[i].first->unlock();
     }
@@ -222,14 +222,14 @@ void InPlaceExecutionContext::AddLock(Spinlock* lock) {
   if(!lock->try_lock()) {
     // lock couldn't be aquired
     // -> free all existing locks
-    unlock_all(locks_.size(), ' ');
+    unlock_all(locks_.size());
 
     // and retry
     locks_.push_back({lock, 1});
     while(true) {
       for (uint64_t i = 0; i < locks_.size(); ++i) {
         if (!locks_[i].first->try_lock()) {
-          unlock_all(i, '*');
+          unlock_all(i);
           break;
         }
         if (i == locks_.size() - 1) {
