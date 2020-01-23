@@ -19,6 +19,7 @@
 #include "core/container/math_array.h"
 #include "core/sim_object/sim_object.h"
 #include "core/sim_object/so_pointer.h"
+#include "core/util/spinlock.h"
 
 namespace bdm {
 namespace experimental {
@@ -34,6 +35,8 @@ class NeuronOrNeurite {
   virtual ~NeuronOrNeurite();
 
   virtual SoUid GetUid() const = 0;
+
+  virtual Spinlock* GetLock() = 0;
 
   SoPointer<NeuronOrNeurite> GetNeuronOrNeuriteSoPtr() const;
 

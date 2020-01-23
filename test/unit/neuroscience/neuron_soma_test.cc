@@ -71,7 +71,7 @@ TEST(NeuronSomaTest, ExtendNewNeuriteElementSphericalCoordinates) {
   EXPECT_NEAR(1, neurite->GetRestingLength(), kEpsilon);
   EXPECT_TRUE(neurite->GetDaughterLeft() == nullptr);
   EXPECT_TRUE(neurite->GetDaughterRight() == nullptr);
-  EXPECT_TRUE(dynamic_cast<NeuronSoma*>(neurite->GetMother().Get()) != nullptr);
+  EXPECT_TRUE(neurite->GetMother().template DynamicCast<NeuronSoma>() != nullptr);
 
   EXPECT_EQ(2u, rm->GetNumSimObjects());
 }
@@ -115,7 +115,7 @@ TEST(NeuronSomaTest, ExtendNewNeurite) {
   EXPECT_NEAR(1, neurite->GetRestingLength(), kEpsilon);
   EXPECT_TRUE(neurite->GetDaughterLeft() == nullptr);
   EXPECT_TRUE(neurite->GetDaughterRight() == nullptr);
-  EXPECT_TRUE(dynamic_cast<NeuronSoma*>(neurite->GetMother().Get()) != nullptr);
+  EXPECT_TRUE(neurite->GetMother().template DynamicCast<NeuronSoma>() != nullptr);
 
   EXPECT_EQ(2u, rm->GetNumSimObjects());
 }
@@ -164,12 +164,11 @@ TEST(NeuronSomaTest, ExtendNeuriteAndElongate) {
   EXPECT_NEAR(7.5, neurite_element->GetRestingLength(), kEpsilon);
   EXPECT_TRUE(neurite_element->GetDaughterLeft() == nullptr);
   EXPECT_TRUE(neurite_element->GetDaughterRight() == nullptr);
-  EXPECT_TRUE(dynamic_cast<NeuriteElement*>(
-                  neurite_element->GetMother().Get()) != nullptr);
+  EXPECT_TRUE(neurite_element->GetMother().template DynamicCast<NeuriteElement>() != nullptr);
 
   //   proximal segment
   auto proximal_element =
-      dynamic_cast<NeuriteElement*>(neurite_element->GetMother().Get());
+      neurite_element->GetMother().template DynamicCast<NeuriteElement>();
   EXPECT_ARR_NEAR(proximal_element->GetMassLocation(), {0, 0, 23.5});
   EXPECT_ARR_NEAR(proximal_element->GetPosition(), {0, 0, 16.75});
   EXPECT_ARR_NEAR(proximal_element->GetXAxis(), {0, 0, 1});
@@ -185,7 +184,7 @@ TEST(NeuronSomaTest, ExtendNeuriteAndElongate) {
   EXPECT_NEAR(13.5, proximal_element->GetRestingLength(), kEpsilon);
   EXPECT_TRUE(proximal_element->GetDaughterLeft() != nullptr);
   EXPECT_TRUE(proximal_element->GetDaughterRight() == nullptr);
-  EXPECT_TRUE(dynamic_cast<NeuronSoma*>(proximal_element->GetMother().Get()) !=
+  EXPECT_TRUE(proximal_element->GetMother().template DynamicCast<NeuronSoma>() !=
               nullptr);
 
   EXPECT_EQ(3u, rm->GetNumSimObjects());
@@ -238,7 +237,7 @@ TEST(NeuriteElementTest, PartialRetraction) {
   EXPECT_NEAR(7, neurite_element->GetRestingLength(), kEpsilon);
   EXPECT_TRUE(neurite_element->GetDaughterLeft() == nullptr);
   EXPECT_TRUE(neurite_element->GetDaughterRight() == nullptr);
-  EXPECT_TRUE(dynamic_cast<NeuronSoma*>(neurite_element->GetMother().Get()) !=
+  EXPECT_TRUE(neurite_element->GetMother().template DynamicCast<NeuronSoma>() !=
               nullptr);
 
   EXPECT_EQ(2u, rm->GetNumSimObjects());
@@ -328,12 +327,11 @@ TEST(NeuriteElementTest, Branch) {
               kEpsilon);
   EXPECT_TRUE(neurite_element->GetDaughterLeft() == nullptr);
   EXPECT_TRUE(neurite_element->GetDaughterRight() == nullptr);
-  EXPECT_TRUE(dynamic_cast<NeuriteElement*>(
-                  neurite_element->GetMother().Get()) != nullptr);
+  EXPECT_TRUE(neurite_element->GetMother().template DynamicCast<NeuriteElement>() != nullptr);
 
   //  proximal segment
   auto proximal_element =
-      dynamic_cast<NeuriteElement*>(neurite_element->GetMother().Get());
+      neurite_element->GetMother().template DynamicCast<NeuriteElement>();
   EXPECT_ARR_NEAR(proximal_element->GetMassLocation(),
                   {0, 11.621299948800891, 22.571299948800885});
   EXPECT_ARR_NEAR(proximal_element->GetPosition(),
@@ -356,8 +354,7 @@ TEST(NeuriteElementTest, Branch) {
               kEpsilon);
   EXPECT_TRUE(proximal_element->GetDaughterLeft() != nullptr);
   EXPECT_TRUE(proximal_element->GetDaughterRight() != nullptr);
-  EXPECT_TRUE(dynamic_cast<NeuriteElement*>(
-                  proximal_element->GetMother().Get()) != nullptr);
+  EXPECT_TRUE(proximal_element->GetMother().template DynamicCast<NeuriteElement>() != nullptr);
 
   //  new branch
   EXPECT_ARR_NEAR(branch->GetPosition(),
@@ -375,7 +372,7 @@ TEST(NeuriteElementTest, Branch) {
   EXPECT_NEAR(1, branch->GetRestingLength(), kEpsilon);
   EXPECT_TRUE(branch->GetDaughterLeft() == nullptr);
   EXPECT_TRUE(branch->GetDaughterRight() == nullptr);
-  EXPECT_TRUE(dynamic_cast<NeuriteElement*>(branch->GetMother().Get()) !=
+  EXPECT_TRUE(branch->GetMother().template DynamicCast<NeuriteElement>() !=
               nullptr);
 
   ctxt->TearDownIterationAll(simulation.GetAllExecCtxts());
@@ -417,8 +414,8 @@ TEST(NeuriteElementTest, RightDaughterRetraction) {
   EXPECT_NEAR(11.6792669065954, neurite_element->GetLength(), kEpsilon);
   EXPECT_NEAR(10.9036023322569, branch->GetLength(), kEpsilon);
 
-  auto* proximal_element =
-      dynamic_cast<NeuriteElement*>(neurite_element->GetMother().Get());
+  auto proximal_element =
+      neurite_element->GetMother().template DynamicCast<NeuriteElement>();
   auto right_daughter_pe = proximal_element->GetDaughterRight();
   for (int i = 0; i < 40; ++i) {
     right_daughter_pe->RetractTerminalEnd(10);
@@ -450,7 +447,7 @@ TEST(NeuriteElementTest, RightDaughterRetraction) {
   EXPECT_NEAR(6.90360233225697, branch->GetRestingLength(), kEpsilon);
   EXPECT_TRUE(branch->GetDaughterLeft() == nullptr);
   EXPECT_TRUE(branch->GetDaughterRight() == nullptr);
-  EXPECT_TRUE(dynamic_cast<NeuriteElement*>(branch->GetMother().Get()) !=
+  EXPECT_TRUE(branch->GetMother().template DynamicCast<NeuriteElement>() !=
               nullptr);
 
   ctxt->TearDownIterationAll(simulation.GetAllExecCtxts());
@@ -492,8 +489,8 @@ TEST(NeuriteElementTest, RightDaughterTotalRetraction) {
   EXPECT_NEAR(11.6792669065954, neurite_element->GetLength(), kEpsilon);
   EXPECT_NEAR(10.9036023322569, branch->GetLength(), kEpsilon);
 
-  auto* proximal_element =
-      dynamic_cast<NeuriteElement*>(neurite_element->GetMother().Get());
+  auto proximal_element =
+      neurite_element->GetMother().template DynamicCast<NeuriteElement>();
   auto right_daughter_pe = proximal_element->GetDaughterRight();
   // right_daughter_ps == branch
   while (proximal_element->GetDaughterRight() != nullptr) {
@@ -544,8 +541,8 @@ TEST(NeuriteElementTest, LeftDaughterRetraction) {
   EXPECT_NEAR(13.2486948956586, neurite_element->GetLength(), kEpsilon);
   EXPECT_NEAR(10.903602332257, branch->GetLength(), kEpsilon);
 
-  auto* proximal_element =
-      dynamic_cast<NeuriteElement*>(neurite_element->GetMother().Get());
+  auto proximal_element =
+      neurite_element->GetMother().template DynamicCast<NeuriteElement>();
   auto left_daughter_pe = proximal_element->GetDaughterLeft();
   for (int i = 0; i < 10; ++i) {
     left_daughter_pe->RetractTerminalEnd(10);
@@ -577,7 +574,7 @@ TEST(NeuriteElementTest, LeftDaughterRetraction) {
   EXPECT_NEAR(10.903602332257, branch->GetRestingLength(), kEpsilon);
   EXPECT_TRUE(branch->GetDaughterLeft() == nullptr);
   EXPECT_TRUE(branch->GetDaughterRight() == nullptr);
-  EXPECT_TRUE(dynamic_cast<NeuriteElement*>(branch->GetMother().Get()) !=
+  EXPECT_TRUE(branch->GetMother().template DynamicCast<NeuriteElement>() !=
               nullptr);
 
   ctxt->TearDownIterationAll(simulation.GetAllExecCtxts());

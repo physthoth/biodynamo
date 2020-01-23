@@ -33,6 +33,7 @@
 #include "core/sim_object/so_visitor.h"
 #include "core/util/macros.h"
 #include "core/util/root.h"
+#include "core/util/spinlock.h"
 
 namespace bdm {
 
@@ -177,6 +178,8 @@ class SimObject {
 
   SoUid GetUid() const;
 
+  Spinlock* GetLock();
+
   uint32_t GetBoxIdx() const;
 
   void SetBoxIdx(uint32_t idx);
@@ -249,6 +252,8 @@ class SimObject {
   std::vector<BaseBiologyModule*> biology_modules_;
 
  private:
+  Spinlock lock_;
+
   /// Helper variable used to support removal of biology modules while
   /// `RunBiologyModules` iterates over them.
   uint32_t run_bm_loop_idx_ = 0;

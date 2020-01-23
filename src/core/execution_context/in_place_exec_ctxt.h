@@ -23,6 +23,7 @@
 #include "core/operation/operation.h"
 #include "core/sim_object/so_uid.h"
 #include "core/util/thread_info.h"
+#include "core/util/spinlock.h"
 
 namespace bdm {
 
@@ -93,6 +94,10 @@ class InPlaceExecutionContext {
   /// simulation objects only update themselves.
   void DisableNeighborGuard();
 
+  void AddLock(Spinlock* lock);
+
+  void RemoveLock(Spinlock* lock);
+
  private:
   ThreadInfo* tinfo_;
 
@@ -107,6 +112,9 @@ class InPlaceExecutionContext {
   std::atomic_flag mutex_ = ATOMIC_FLAG_INIT;
 
   std::vector<std::pair<const SimObject*, double>> neighbor_cache_;
+
+  // FIXME do we need a counter for reentrance??
+  std::vector<std::pair<Spinlock*, short>> locks_;
 
   SimObject* GetCachedSimObject(SoUid uid);
 };

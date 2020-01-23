@@ -98,6 +98,8 @@ void SimObject::AssignNewUid() { uid_ = SoUidGenerator::Get()->NewSoUid(); }
 
 SoUid SimObject::GetUid() const { return uid_; }
 
+Spinlock* SimObject::GetLock() { return &lock_; }
+
 uint32_t SimObject::GetBoxIdx() const { return box_idx_; }
 
 void SimObject::SetBoxIdx(uint32_t idx) { box_idx_ = idx; }

@@ -167,6 +167,8 @@ class NeuriteElement : public SimObject, public NeuronOrNeurite {
 
   SoUid GetUid() const override { return Base::GetUid(); }
 
+  Spinlock* GetLock() override { return Base::GetLock(); }
+
   Shape GetShape() const override { return Shape::kCylinder; }
 
   /// Returns the data members that are required to visualize this simulation
@@ -249,8 +251,8 @@ class NeuriteElement : public SimObject, public NeuronOrNeurite {
     auto* core_param = Simulation::GetActive()->GetParam();
     speed *= core_param->simulation_time_step_;
 
-    auto* mother_soma = dynamic_cast<NeuronSoma*>(mother_.Get());
-    auto* mother_neurite = dynamic_cast<NeuriteElement*>(mother_.Get());
+    auto mother_soma = mother_.template DynamicCast<NeuronSoma>();
+    auto mother_neurite = mother_.template DynamicCast<NeuriteElement>();
 
     if (actual_length_ > speed + 0.1) {
       // if actual_length_ > length : retraction keeping the same tension
@@ -463,17 +465,15 @@ class NeuriteElement : public SimObject, public NeuronOrNeurite {
   // TODO(neurites) add documentation
   void UpdateRelative(const NeuronOrNeurite& old_relative,
                       const NeuronOrNeurite& new_relative) override {
-    if (&old_relative == &*mother_) {
+    if (mother_ == &old_relative) {
       mother_ = new_relative.GetNeuronOrNeuriteSoPtr();
     } else {
       auto new_neurite_soptr =
           bdm_static_cast<const NeuriteElement*>(&new_relative)
               ->GetSoPtr<NeuriteElement>();
-      if (&*daughter_left_ ==
-          dynamic_cast<const NeuriteElement*>(&old_relative)) {
+      if (daughter_left_ == &old_relative) {
         daughter_left_ = new_neurite_soptr;
-      } else if (&*daughter_right_ ==
-                 dynamic_cast<const NeuriteElement*>(&old_relative)) {
+      } else if (daughter_right_ == &old_relative) {
         daughter_right_ = new_neurite_soptr;
       }
     }
@@ -514,8 +514,8 @@ class NeuriteElement : public SimObject, public NeuronOrNeurite {
     }
 
     auto* param = Simulation::GetActive()->GetParam()->GetModuleParam<Param>();
-    auto* mother_soma = dynamic_cast<NeuronSoma*>(mother_.Get());
-    auto* mother_neurite = dynamic_cast<NeuriteElement*>(mother_.Get());
+    auto mother_soma = mother_.template DynamicCast<NeuronSoma>();
+    auto mother_neurite = mother_.template DynamicCast<NeuriteElement>();
     if (actual_length_ > param->neurite_max_length_) {
       if (daughter_left_ == nullptr) {  // if terminal branch :
         SplitNeuriteElement(0.1);
@@ -997,8 +997,8 @@ class NeuriteElement : public SimObject, public NeuronOrNeurite {
   /// independently of the discretization.
   double LengthToProximalBranchingPoint() const {
     double length = actual_length_;
-    if (auto* mother_neurite =
-            dynamic_cast<const NeuriteElement*>(mother_.Get())) {
+    auto mother_neurite = mother_.template DynamicCast<NeuriteElement>();
+    if (auto mother_neurite = mother_.template DynamicCast<NeuriteElement>()) {
       if (mother_neurite->GetDaughterRight() == nullptr) {
         length += mother_neurite->LengthToProximalBranchingPoint();
       }
@@ -1060,8 +1060,8 @@ class NeuriteElement : public SimObject, public NeuronOrNeurite {
     str << "resting_length_:  " << n.resting_length_ << std::endl;
     str << "d left         :  " << n.daughter_left_ << std::endl;
     str << "d right         :  " << n.daughter_right_ << std::endl;
-    auto* mother_soma = dynamic_cast<const NeuronSoma*>(n.mother_.Get());
-    auto* mother_neurite = dynamic_cast<const NeuriteElement*>(n.mother_.Get());
+    auto mother_soma = n.mother_.template DynamicCast<NeuronSoma>();
+    auto mother_neurite = n.mother_.template DynamicCast<NeuriteElement>();
     auto mother =
         mother_soma ? "neuron" : (mother_neurite ? "neurite" : "nullptr");
     str << "mother_           " << mother << std::endl;
@@ -1164,17 +1164,15 @@ class NeuriteElement : public SimObject, public NeuronOrNeurite {
   void RemoveProximalNeuriteElement() {
     // The mother is removed if (a) it is a neurite element and (b) it has no
     // other daughter than
-    auto* mother_neurite = dynamic_cast<NeuriteElement*>(mother_.Get());
+    auto mother_neurite = mother_.template DynamicCast<NeuriteElement>();
     if (mother_neurite == nullptr ||
         mother_neurite->GetDaughterRight() != nullptr) {
       return;
     }
-    // The guy we gonna remove
-    auto* proximal_ne = mother_neurite;
 
     // Re-organisation of the PhysicalObject tree structure: by-passing
     // proximalCylinder
-    proximal_ne->GetMother()->UpdateRelative(*mother_, *this);
+    mother_neurite->GetMother()->UpdateRelative(*mother_, *this);
     SetMother(mother_neurite->GetMother()->GetNeuronOrNeuriteSoPtr());
 
     // Keeping the same tension :
@@ -1191,7 +1189,7 @@ class NeuriteElement : public SimObject, public NeuronOrNeurite {
     // and local coord
     UpdateLocalCoordinateAxis();
 
-    proximal_ne->RemoveFromSimulation();
+    mother_neurite->RemoveFromSimulation();
   }
 
   /// \brief Extend a side neurite element and assign it to daughter right.

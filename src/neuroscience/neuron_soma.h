@@ -63,6 +63,8 @@ class NeuronSoma : public Cell, public NeuronOrNeurite {
 
   SoUid GetUid() const override { return Base::GetUid(); }
 
+  Spinlock* GetLock() override { return Base::GetLock(); }
+
   // ***************************************************************************
   //      METHODS FOR NEURON TREE STRUCTURE *
   // ***************************************************************************

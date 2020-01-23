@@ -80,15 +80,17 @@ void InPlaceExecutionContext::TearDownIterationAll(
 
 void InPlaceExecutionContext::Execute(
     SimObject* so, const std::vector<Operation>& operations) {
-  auto* grid = Simulation::GetActive()->GetGrid();
-  auto nb_mutex_builder = grid->GetNeighborMutexBuilder();
-  if (nb_mutex_builder != nullptr) {
-    auto mutex = nb_mutex_builder->GetMutex(so->GetBoxIdx());
-    std::lock_guard<decltype(mutex)> guard(mutex);
+  auto* param = Simulation::GetActive()->GetParam();
+  if (true) {  // FIXME
+    if (locks_.size() != 0) {
+      Log::Fatal("InPlaceExecutionContext::Execute", "Not all locks have been freed for the previous simulation object.");
+    }
+    AddLock(so->GetLock()); // FIXME change to lock_guard solution
     neighbor_cache_.clear();
     for (auto& op : operations) {
       op(so);
     }
+    RemoveLock(so->GetLock());
   } else {
     neighbor_cache_.clear();
     for (auto& op : operations) {
@@ -199,6 +201,56 @@ void InPlaceExecutionContext::RemoveFromSimulation(SoUid uid) {
 
 void InPlaceExecutionContext::DisableNeighborGuard() {
   Simulation::GetActive()->GetGrid()->DisableNeighborMutexes();
+}
+
+void InPlaceExecutionContext::AddLock(Spinlock* lock) {
+  // check if we have locked the given Spinlock already
+  // if so increment counter
+  for (auto& pair : locks_) {
+    if (pair.first == lock) {
+      pair.second++;
+      return;
+    }
+  }
+
+  auto unlock_all = [this](uint64_t max) {
+    for (uint64_t i = 0; i < max; ++i) {
+      locks_[i].first->unlock();
+    }
+  };
+
+  if(!lock->try_lock()) {
+    // lock couldn't be aquired
+    // -> free all existing locks
+    unlock_all(locks_.size());
+
+    // and retry
+    locks_.push_back({lock, 1});
+    while(true) {
+      for (uint64_t i = 0; i < locks_.size(); ++i) {
+        if (!locks_[i].first->try_lock()) {
+          unlock_all(i);
+        }
+      }
+      // managed to lock all locks
+      return;
+    }
+  } else {
+    locks_.push_back({lock, 1});
+  }
+}
+
+void InPlaceExecutionContext::RemoveLock(Spinlock* lock) {
+  lock->unlock();
+  for(auto it = locks_.begin(); it != locks_.end(); ++it) {
+    if (it->first == lock) {
+      if (it->second == 1) {
+        locks_.erase(it);
+        return;
+      }
+      it->second--;
+    }
+  }
 }
 
 SimObject* InPlaceExecutionContext::GetCachedSimObject(SoUid uid) {
