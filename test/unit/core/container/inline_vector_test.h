@@ -68,6 +68,13 @@ inline void RunIOTest() {
 }
 
 }  // namespace inline_vector_test_internal
+
+#ifdef __ROOTCLING__
+static InlineVector<int, 2> ilv2;
+static InlineVector<int, 3> ilv3;
+static InlineVector<int, 4> ilv4;
+#endif
+
 }  // namespace bdm
 
 #endif  // UNIT_CORE_CONTAINER_INLINE_VECTOR_TEST_H_
