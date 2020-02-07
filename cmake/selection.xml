@@ -4,7 +4,7 @@
     <class pattern="bdm::InlineVector<*,*>" />
     <class pattern="bdm::SoPointer<*>" />
     <class pattern="std::vector<bdm::*<*>>" />
-    <class name="vector<bdm::InlineVector<int,8>>" />
+    <class pattern="vector<bdm::InlineVector<*, *>>" />
   </selection>
   <exclusion>
     <class pattern="cl::*" />
