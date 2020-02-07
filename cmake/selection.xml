@@ -1,7 +1,7 @@
 <lcgdict>
   <selection>
     <class pattern="bdm::*" />
-    <class name="bdm::SoPointer<bdm::SimObject>" />
+    <class pattern="bdm::InlineVector<*,*>" />
     <class pattern="bdm::SoPointer<*>" />
     <class pattern="std::vector<bdm::*<*>>" />
     <class name="vector<bdm::InlineVector<int,8>>" />

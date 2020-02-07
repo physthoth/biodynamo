@@ -3,6 +3,8 @@
      Classes from directory test are not included. -->
 <lcgdict>
   <selection>
+    <class pattern="bdm::SoPointer<*>" />
+    <class pattern="bdm::InlineVector<*,*>" />
     <class name="bdm::experimental::neuroscience::NeuronSoma" />
     <class name="bdm::experimental::neuroscience::NeuriteElement" />
     <class name="bdm::experimental::neuroscience::Param" />
@@ -11,7 +13,6 @@
     <class name="bdm::ResourceManager" />
     <class name="bdm::SimObject" />
     <class name="bdm::SoHandle" />
-    <class pattern="bdm::SoPointer<*>" />
     <class name="bdm::Cell" />
     <class name="std::unordered_map<uint64_t, bdm::DiffusionGrid*>" />
     <class name="std::unordered_map<uint64_t, bdm::SoHandle>" />
